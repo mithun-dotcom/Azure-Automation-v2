@@ -1,5 +1,9 @@
 # Render runs this container. It carries both the Python backend and PowerShell 7 +
 # the ExchangeOnlineManagement module for the two Exchange-only operations.
+#
+# NOTE: The PowerShell scripts are EMBEDDED in backend/exo_bridge.py and written to disk
+# at runtime, so there is no separate powershell/ folder to COPY. This avoids the
+# '"/powershell": not found' build error caused by folder uploads dropping subfolders.
 FROM python:3.12-slim
 
 # --- Install PowerShell 7 ---------------------------------------------------
@@ -21,7 +25,6 @@ COPY backend/requirements.txt ./backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 COPY backend ./backend
-COPY powershell ./powershell
 
 # Render provides $PORT
 ENV PORT=8000

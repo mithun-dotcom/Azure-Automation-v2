@@ -4,6 +4,13 @@ FastAPI backend for multi-tenant Microsoft 365 provisioning, using **admin-conse
 (no stored passwords, MFA-safe). Deploys to Render as a Docker container that also carries
 PowerShell 7 + the ExchangeOnlineManagement module for the two Exchange-only operations.
 
+> **Deploy note (why there's no `powershell/` folder):** the two PowerShell scripts are
+> embedded inside `backend/exo_bridge.py` and written to disk at runtime. Earlier builds
+> failed with `"/powershell": not found` because GitHub's web "upload files" can silently
+> drop subfolders, so the `powershell/` directory never reached Render's build context.
+> Embedding the scripts means the Docker build only needs `backend/` (which uploads fine),
+> and the Exchange features still work identically.
+
 ## Layout
 
 ```
@@ -18,9 +25,9 @@ backend/
   audit.py              append-only audit log (SQLAlchemy async)
   crypto.py             Fernet encryption helpers for tokens at rest
   requirements.txt
-powershell/
-  Set-MailboxDelegation.ps1   Full Access (+ optional Send-As) across mailboxes
-  Disable-SmtpAuth.ps1        org-wide SMTP AUTH off (Microsoft-recommended hardening)
+  exo_bridge.py         subprocess bridge to PowerShell — the two Exchange scripts are
+                        EMBEDDED here and written to a temp dir at runtime (no separate
+                        powershell/ folder to upload)
 csv-templates/          users.csv, mailboxes.csv, password-reset.csv
 ```
 
